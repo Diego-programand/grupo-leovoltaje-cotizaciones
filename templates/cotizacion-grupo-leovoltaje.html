@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cotización Comercial - Grupo Leovoltaje</title>
+
+  <!-- Tipografía Oficial: Bree Serif (Títulos y Total) + Inter (Lectura técnica y tablas) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       RESET Y VARIABLES DEL SISTEMA DE DISEÑO
+       ========================================================================== */
+    :root {
+      --color-primary: #232357;
+      /* Azul institucional Grupo Leovoltaje */
+      --color-primary-dark: #181840;
+      /* Tono profundo de soporte */
+      --color-accent: #22266c;
+      /* Acento dorado/eléctrico sutil */
+      --color-text-main: #1A1A1A;
+      /* Texto de alto contraste */
+      --color-text-secondary: #4A4A4A;
+      /* Texto secundario y etiquetas */
+      --color-text-muted: #71717A;
+      /* Metadatos y notas */
+      --color-bg-card: #F8F9FA;
+      /* Fondo sutil para tarjetas */
+      --color-border: #e2e8f0;
+      /* Bordes neutros técnicos */
+      --color-white: #FFFFFF;
+
+      --font-title: 'Bree Serif', Georgia, serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ==========================================================================
+       CONFIGURACIÓN DE PÁGINA IMPRESA (A4 DETERMINISTA)
+       ========================================================================== */
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    html,
+    body {
+      width: 210mm;
+      height: 297mm;
+      background-color: #ECEEF2;
+      font-family: var(--font-body);
+      font-size: 9pt;
+      line-height: 1.5;
+      color: var(--color-text-main);
+      -webkit-font-smoothing: antialiased;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* ==========================================================================
+       LIENZO A4 - HOJA CORPORATIVA
+       Dimensiones exactas: 210mm x 297mm
+       Padding de seguridad: 18mm superior/inferior, 20mm lateral
+       ========================================================================== */
+    .a4-sheet {
+      width: 210mm;
+      height: 297mm;
+      max-height: 297mm;
+      margin: 10px auto;
+      padding: 18mm 20mm 16mm 20mm;
+      background: var(--color-white);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    @media print {
+      body {
+        background-color: var(--color-white);
+      }
+
+      .a4-sheet {
+        margin: 0;
+        box-shadow: none;
+        page-break-inside: avoid;
+        page-break-after: avoid;
+      }
+    }
+
+    /* Banda superior institucional */
+    .a4-sheet::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5mm;
+      background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary) 85%, var(--color-accent) 85%, var(--color-accent) 100%);
+    }
+
+    /* ==========================================================================
+       1. ENCABEZADO / HEADER
+       ========================================================================== */
+    .header-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: 5mm;
+      border-bottom: 1.5px solid var(--color-border);
+    }
+
+    .brand-identity {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo-container {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .brand-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .brand-logo-fallback {
+      width: 40px;
+      height: 40px;
+      fill: var(--color-white);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-family: var(--font-title);
+      font-size: 20pt;
+      font-weight: 100;
+      color: var(--color-primary);
+      letter-spacing: 0.2px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .brand-web {
+      font-size: 7pt;
+      color: var(--color-text-muted);
+      margin-top: 2px;
+      letter-spacing: 0.2px;
+    }
+
+    /* Metadatos Cotización (Derecha) */
+    .quotation-badge-card {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .quotation-main-title {
+      font-family: var(--font-title);
+      font-size: 22pt;
+      color: var(--color-primary);
+      line-height: 1;
+      letter-spacing: 0.8px;
+      margin-bottom: 5px;
+    }
+
+    .quotation-meta-grid {
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: 3px 10px;
+      text-align: right;
+      font-size: 8pt;
+      background: var(--color-bg-card);
+      padding: 5px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--color-border);
+    }
+
+    .meta-label {
+      color: var(--color-text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 7pt;
+    }
+
+    .meta-val {
+      color: var(--color-primary);
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       2. BLOQUE DE ENTIDADES (EMISOR Y RECEPTOR)
+       ========================================================================== */
+    .entities-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 5mm;
+    }
+
+    .entity-card {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-left: 3.5px solid var(--color-primary);
+      border-radius: 4px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .entity-header {
+      font-size: 9pt;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--color-primary);
+      margin-bottom: 2px;
+    }
+
+    .entity-row {
+      display: flex;
+      align-items: baseline;
+      font-size: 8.2pt;
+      line-height: 1.35;
+    }
+
+    .entity-label {
+      width: 65px;
+      flex-shrink: 0;
+      font-size: 7.2pt;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+
+    .entity-value {
+      color: var(--color-text-main);
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    /* ==========================================================================
+       3. TEXTO INTRODUCTORIO FORMAL (MÁXIMO 2 LÍNEAS)
+       ========================================================================== */
+    .intro-section {
+      margin-top: 4mm;
+      padding-left: 10px;
+      border-left: 2.5px solid var(--color-primary);
+    }
+
+    .intro-paragraph {
+      font-size: 8.2pt;
+      line-height: 1.45;
+      color: var(--color-text-secondary);
+    }
+
+    .intro-paragraph strong {
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       4. TABLA DE COTIZACIÓN (COLUMNA ÚNICA AL 100%)
+       ========================================================================== */
+    .table-container {
+      margin-top: 5mm;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .quotation-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--color-border);
+      font-size: 8.5pt;
+    }
+
+    /* Encabezado */
+    .quotation-table thead th {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      font-family: var(--font-title);
+      font-weight: 400;
+      letter-spacing: 0.8px;
+      padding: 7px 12px;
+      font-size: 8.8pt;
+      text-transform: uppercase;
+      text-align: left;
+      border: none;
+      width: 100%;
+    }
+
+    /* Filas intermedias con mayor respiro vertical */
+    .quotation-table tbody tr.item-row {
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .quotation-table tbody tr.item-row:nth-child(even) {
+      background-color: var(--color-bg-card);
+    }
+
+    .quotation-table tbody td.td-item-desc {
+      padding: 8.5px 12px;
+      vertical-align: middle;
+      line-height: 1.4;
+      color: var(--color-text-main);
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .item-bullet {
+      color: var(--color-primary);
+      font-weight: 700;
+      font-size: 9pt;
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       FRANJA DE CIERRE / TOTAL CONSOLIDADO
+       ========================================================================== */
+    .quotation-table tfoot tr.total-row td {
+      padding: 0;
+      border: none;
+    }
+
+    .total-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      padding: 10px 14px;
+    }
+
+    .total-label {
+      font-family: var(--font-title);
+      font-size: 11pt;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .total-value-wrapper {
+      font-family: var(--font-title);
+      font-size: 12.5pt;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--color-white);
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       5. MENSAJE DE CIERRE & BLOQUE DE FIRMA
+       ========================================================================== */
+    .closing-note {
+      margin-top: 4.5mm;
+      font-size: 8pt;
+      color: var(--color-text-secondary);
+      font-style: italic;
+    }
+
+    .closing-section {
+      margin-top: 4mm;
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-end;
+      padding-top: 2mm;
+    }
+
+    .signature-container {
+      width: 230px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .signature-image-box {
+      height: 42px;
+      max-width: 170px;
+      display: flex;
+      align-items: flex-end;
+      margin-bottom: 2px;
+    }
+
+    .signature-img {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+    }
+
+    .signature-line {
+      width: 100%;
+      height: 1.5px;
+      background-color: var(--color-primary);
+      margin-bottom: 4px;
+    }
+
+    .signature-name {
+      font-size: 9pt;
+      font-weight: 700;
+      color: var(--color-primary);
+      line-height: 1.2;
+    }
+
+    .signature-role {
+      font-size: 7.5pt;
+      color: var(--color-text-secondary);
+      font-weight: 500;
+    }
+
+    .signature-company {
+      font-size: 7pt;
+      color: var(--color-text-muted);
+      letter-spacing: 0.4px;
+      margin-top: 1px;
+    }
+
+    /* ==========================================================================
+       6. PIE DE PÁGINA (FOOTER DEL DOCUMENTO)
+       ========================================================================== */
+    .footer-section {
+      margin-top: 4mm;
+      padding-top: 3mm;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 7pt;
+      color: var(--color-text-muted);
+      letter-spacing: 0.2px;
+    }
+
+    .footer-left strong {
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    .footer-right {
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Contenedor exacto A4 (210mm x 297mm) -->
+  <main class="a4-sheet" id="quotation-document">
+
+    <!-- CONTENIDO SUPERIOR Y CUERPO -->
+    <div class="document-flow">
+
+      <!-- ===================================================================
+           1. ENCABEZADO / HEADER
+           =================================================================== -->
+      <header class="header-section">
+        <div class="brand-identity">
+          <div class="brand-logo-container" data-field="logo_empresa_container">
+            <!-- Imagen oficial o fallback SVG de isotipo león + rayo -->
+            <img src="https://grupoleovoltaje.com/favicon.svg" alt="Grupo Leovoltaje" class="brand-logo-img"
+              data-field="logo_empresa"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+            <svg class="brand-logo-fallback" viewBox="0 0 40 40" style="display: none;" aria-hidden="true">
+              <!-- Isotipo: Cabeza de León vectorizada con rayo eléctrico -->
+              <path d="M20 4L23 14H29L21 24H26L15 36L18 22H12L20 4Z" fill="#E5A93C" />
+              <path
+                d="M7 12C9 8 14 5 20 5C26 5 31 8 33 12C35 16 35 22 31 28C28 32 24 35 20 35C16 35 12 32 9 28C5 22 5 16 7 12Z"
+                stroke="#FFFFFF" stroke-width="1.8" fill="none" opacity="0.85" />
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1 class="brand-name">Grupo</h1>
+            <h1 class="brand-name">Leovoltaje</h1>
+          </div>
+        </div>
+
+        <div class="quotation-badge-card">
+          <h2 class="quotation-main-title">COTIZACIÓN</h2>
+          <div class="quotation-meta-grid">
+            <span class="meta-label">No. Cotización:</span>
+            <span class="meta-val" id="field-quotation-number"
+              data-field="consecutivo_cotizacion">[CONSECUTIVO_COTIZACION]</span>
+
+            <span class="meta-label">Fecha de Emisión:</span>
+            <span class="meta-val" id="field-quotation-date" data-field="fecha_cotizacion">[FECHA_COTIZACION]</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===================================================================
+           2. BLOQUE DE ENTIDADES (EMISOR Y RECEPTOR)
+           =================================================================== -->
+      <section class="entities-section">
+        <!-- Emisor (Grupo Leovoltaje) -->
+        <article class="entity-card" id="card-issuer" data-field="emisor_container">
+          <div class="entity-header">Emisor</div>
+
+          <div class="entity-row">
+            <span class="entity-label">Atención:</span>
+            <span class="entity-value" id="field-issuer-name"
+              data-field="nombre_administrador">[NOMBRE_ADMINISTRADOR]</span>
+          </div>
+          <div class="entity-row">
+            <span class="entity-label">Correo:</span>
+            <span class="entity-value" id="field-issuer-email"
+              data-field="correo_administrador">[CORREO_ADMINISTRADOR]</span>
+          </div>
+          <div class="entity-row">
+            <span class="entity-label">Teléfono:</span>
+            <span class="entity-value" id="field-issuer-phone"
+              data-field="telefono_administrador">[TELEFONO_ADMINISTRADOR]</span>
+          </div>
+        </article>
+
+        <!-- Receptor (Cliente) -->
+        <article class="entity-card" id="card-client" data-field="receptor_container">
+          <div class="entity-header">Cliente</div>
+          <div class="entity-row">
+            <span class="entity-label">Nombre:</span>
+            <span class="entity-value" id="field-client-name" data-field="nombre_cliente">[NOMBRE_CLIENTE]</span>
+          </div>
+          <div class="entity-row">
+            <span class="entity-label">Teléfono:</span>
+            <span class="entity-value" id="field-client-phone" data-field="telefono_cliente">[TELEFONO_CLIENTE]</span>
+          </div>
+          <!-- NIT opcional: preserva la alineación si está presente o ausente -->
+          <div class="entity-row" id="field-client-nit-row" data-field="nit_cliente_container">
+            <span class="entity-label">NIT / C.C.:</span>
+            <span class="entity-value" id="field-client-nit" data-field="nit_cliente">[NIT_CLIENTE]</span>
+          </div>
+        </article>
+      </section>
+
+      <!-- ===================================================================
+           3. TEXTO INTRODUCTORIO FORMAL (CONCISO)
+           =================================================================== -->
+      <section class="intro-section" data-field="introduccion_container">
+        <p class="intro-paragraph">
+          Agradecemos su interés en <strong>Grupo Leovoltaje</strong>. Ponemos a su disposición la presente propuesta
+          técnica y económica conforme al consecutivo <strong>[CONSECUTIVO_COTIZACION]</strong> emitido el
+          <strong>[FECHA_COTIZACION]</strong>.
+        </p>
+      </section>
+
+      <!-- ===================================================================
+           4. TABLA DE COTIZACIÓN (COLUMNA ÚNICA AL 100% - DESCRIPCIÓN)
+           =================================================================== -->
+      <section class="table-container">
+        <table class="quotation-table" aria-label="Descripción de Labores Cotizadas">
+          <thead>
+            <tr>
+              <th scope="col">DESCRIPCIÓN</th>
+            </tr>
+          </thead>
+
+          <tbody id="field-items-body" data-field="items_container">
+            <!-- Fila de ejemplo 1 -->
+            <tr class="item-row" data-field="item_row">
+              <td class="td-item-desc" data-field="item_descripcion">
+                <span class="item-bullet">›</span>
+                <span>Adecuación, suministro y tendido de acometida eléctrica principal trifásica en conductor
+                  certificado bajo norma NTC 2050.</span>
+              </td>
+            </tr>
+
+            <!-- Fila de ejemplo 2 -->
+            <tr class="item-row" data-field="item_row">
+              <td class="td-item-desc" data-field="item_descripcion">
+                <span class="item-bullet">›</span>
+                <span>Fabricación, cableado y montaje de tablero general de distribución con protecciones
+                  termomagnéticas e interruptores diferenciales.</span>
+              </td>
+            </tr>
+
+            <!-- Fila de ejemplo 3 -->
+            <tr class="item-row" data-field="item_row">
+              <td class="td-item-desc" data-field="item_descripcion">
+                <span class="item-bullet">›</span>
+                <span>Instalación de tubería conduit EMT galvanizada, cajas de paso, derivaciones técnicas y soportería
+                  perimetral certificada.</span>
+              </td>
+            </tr>
+
+            <!-- Fila de ejemplo 4 -->
+            <tr class="item-row" data-field="item_row">
+              <td class="td-item-desc" data-field="item_descripcion">
+                <span class="item-bullet">›</span>
+                <span>Cableado de circuitos ramales de fuerza, tomacorrientes normales y regulados, debidamente
+                  balanceados e identificados.</span>
+              </td>
+            </tr>
+
+            <!-- Fila de ejemplo 5 -->
+            <tr class="item-row" data-field="item_row">
+              <td class="td-item-desc" data-field="item_descripcion">
+                <span class="item-bullet">›</span>
+                <span>Instalación de sistema de puesta a tierra (SPT), electrodo copperweld, equipotencialización y
+                  medición de resistividad.</span>
+              </td>
+            </tr>
+
+            <!-- Fila de ejemplo 6 -->
+            <tr class="item-row" data-field="item_row">
+              <td class="td-item-desc" data-field="item_descripcion">
+                <span class="item-bullet">›</span>
+                <span>Pruebas operativas de aislamiento, continuidad, balanceo de cargas y entrega de informe técnico de
+                  conformidad RETIE.</span>
+              </td>
+            </tr>
+
+            <!-- Fila 7 -->
+            <tr class="item-row" data-field="item_row">
+              <td class="td-item-desc" data-field="item_descripcion">
+                <span class="item-bullet">›</span>
+                <span>Servicios eléctricos generales</span>
+              </td>
+            </tr>
+
+            <!-- Fila 8 -->
+            <tr class="item-row" data-field="item_row">
+              <td class="td-item-desc" data-field="item_descripcion">
+                <span class="item-bullet">›</span>
+                <span>Servicios de aire acondicionado</span>
+              </td>
+            </tr>
+
+            <!-- Fila 9 -->
+            <tr class="item-row" data-field="item_row">
+              <td class="td-item-desc" data-field="item_descripcion">
+                <span class="item-bullet">›</span>
+                <span>Servicios de sistemas de seguridad</span>
+              </td>
+            </tr>
+
+            <!-- Fila 10 -->
+            <tr class="item-row" data-field="item_row">
+              <td class="td-item-desc" data-field="item_descripcion">
+                <span class="item-bullet">›</span>
+                <span>Servicios de redes y telecomunicaciones</span>
+              </td>
+            </tr>
+
+          </tbody>
+
+            <!-- FRANJA DE CIERRE / TOTAL CONSOLIDADO -->
+          <tfoot>
+            <tr class="total-row" data-field="total_container">
+              <td>
+                <div class="total-banner">
+                  <span class="total-label">TOTAL</span>
+                  <div class="total-value-wrapper">
+                    <span id="field-total-value" data-field="valor_total">$ [VALOR_TOTAL] COP</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </section>
+
+      <!-- Mensaje de Cierre Breve -->
+      <p class="closing-note" data-field="nota_cierre">
+        Quedamos a su entera disposición para resolver cualquier duda o ajustar detalles técnicos. Para una atención
+        inmediata, puede contactarnos directamente a nuestros canales de atención. Cualquier medio de comunicacion no
+        especificado en este documento, por favor consideralo no válido.</p>
+    </div>
+
+    <!-- CONTENEDOR INFERIOR: FIRMA Y FOOTER -->
+    <div class="document-footer-block">
+      <!-- ===================================================================
+           5. BLOQUE DE FIRMA DEL ADMINISTRADOR
+           =================================================================== -->
+      <section class="closing-section">
+        <div class="signature-container" data-field="firma_container">
+          <div class="signature-image-box">
+            <!-- Firma gráfica digitalizada del administrador -->
+            <img src="[FIRMA_ADMINISTRADOR]" alt="Firma Administrador" class="signature-img"
+              data-field="firma_administrador" onerror="this.style.visibility='hidden';" />
+          </div>
+          <div class="signature-line"></div>
+          <span class="signature-name" id="field-signature-name"
+            data-field="nombre_administrador">[NOMBRE_ADMINISTRADOR]</span>
+          <span class="signature-role">Administrador</span>
+
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           6. FOOTER INSTITUCIONAL DEL DOCUMENTO
+           =================================================================== -->
+      <footer class="footer-section">
+        <div class="footer-left">
+          <strong>Grupo Leovoltaje</strong> • Servicios eléctricos
+        </div>
+        <div class="footer-right">
+          <strong>grupoleovoltaje.com</strong> • Documento emitido electrónicamente
+        </div>
+      </footer>
+    </div>
+
+  </main>
+</body>
+
+</html>
