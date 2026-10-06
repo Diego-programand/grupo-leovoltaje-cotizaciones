@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { QuotationData } from '@/types/quotation';
 import { Download, Printer, Share2, Check, Loader2, ArrowLeft } from 'lucide-react';
-import { formatCOP, formatFormalDate } from './QuotationDocument';
 
 interface Props {
   data: QuotationData;
@@ -143,6 +142,7 @@ export default function PrintControls({ data, onBackToForm }: Props) {
   };
 
   // Compartir por WhatsApp
+  // Compartir PDF directamente por WhatsApp (únicamente el documento PDF)
   const handleShareWhatsAppPdf = async () => {
     setIsSharingWhatsApp(true);
     try {
@@ -156,32 +156,19 @@ export default function PrintControls({ data, onBackToForm }: Props) {
       const { blob, fileName, pdf } = result;
       const pdfFile = new File([blob], fileName, { type: 'application/pdf' });
 
-      const itemsSummary = (data.items || [])
-        .map((it, idx) => `  ${idx + 1}. ${it.description}`)
-        .join('\n');
-
-      const messageText = `Estimado(a) *${data.clientName || 'Cliente'}*, le compartimos la propuesta técnica y económica oficial de *Grupo Leovoltaje* (${data.quotationNumber}).
-Fecha de emisión: *${formatFormalDate(data.date) || data.date}*
-Total de la propuesta: *${formatCOP(data.totalPrice)} COP* (Llave en mano)
-
-Alcance técnico cotizado:
-${itemsSummary}
-
-Adjuntamos documento formal en formato PDF.`;
-
+      // Si el navegador soporta compartir archivos directamente (iOS Safari, Chrome Móvil):
       if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
         await navigator.share({
           files: [pdfFile],
-          title: `Cotización ${data.quotationNumber} - Grupo Leovoltaje`,
-          text: messageText,
+          title: fileName,
         });
-        showToast('¡Propuesta enviada para compartir por WhatsApp!');
+        showToast('¡Documento PDF enviado para compartir!');
       } else {
+        // En computadores de escritorio donde el navegador no soporta Web Share de archivos:
         pdf.save(fileName);
-        const encodedText = encodeURIComponent(
-          `${messageText}\n\n*(El documento PDF oficial se ha descargado en tu dispositivo para ser adjuntado al chat)*`
-        );
-        window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
+        setTimeout(() => {
+          window.open('https://web.whatsapp.com/', '_blank');
+        }, 500);
         showToast('PDF descargado. Adjúntalo en el chat de WhatsApp que se acaba de abrir.');
       }
     } catch (err: any) {
@@ -211,8 +198,8 @@ Adjuntamos documento formal en formato PDF.`;
           type="button"
           onClick={handleShareWhatsAppPdf}
           disabled={isSharingWhatsApp}
-          className="btn-touch btn-touch-secondary"
-          title="Compartir documento y resumen por WhatsApp"
+          className="btn-touch btn-touch-whatsapp"
+          title="Compartir el documento PDF completo por WhatsApp"
         >
           {isSharingWhatsApp ? (
             <>

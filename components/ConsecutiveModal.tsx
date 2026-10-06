@@ -53,7 +53,7 @@ export default function ConsecutiveModal({
       <div className="consecutive-modal-card">
         <div className="consecutive-modal-header">
           <div className="consecutive-modal-icon-wrap">
-            <Hash size={22} className="text-gold" />
+            <Hash size={22} color="#d5d5eb" />
           </div>
           <div>
             <h3 className="consecutive-modal-title">
@@ -61,7 +61,7 @@ export default function ConsecutiveModal({
             </h3>
             <p className="consecutive-modal-sub">
               {isInitialSetup
-                ? 'Ingresa el número de cotización para este dispositivo.'
+                ? 'Ingresa el número de cotización inicial.'
                 : 'Modifica el número de tu consecutivo actual:'}
             </p>
           </div>
@@ -104,10 +104,8 @@ export default function ConsecutiveModal({
 
           {/* Vista previa en tiempo real */}
           <div className="consecutive-preview-box">
-            <span className="preview-label">Formato que se guardará en tu dispositivo:</span>
             <div className="preview-badge">
               <span className="preview-code">{preview}</span>
-              <span className="preview-format-tag">Oficial Grupo Leovoltaje</span>
             </div>
           </div>
 

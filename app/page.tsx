@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import QuotationForm from '@/components/QuotationForm';
 import PdfPreviewViewer from '@/components/PdfPreviewViewer';
 import PrintControls from '@/components/PrintControls';
@@ -16,7 +16,9 @@ import {
   getTodayDateString,
 } from '@/data/defaults';
 import { QuotationData } from '@/types/quotation';
-import { RotateCcw, Edit3, Eye, LogOut, Zap } from 'lucide-react';
+import { Plus, Edit3, Eye, LogOut, Zap } from 'lucide-react';
+
+const DRAFT_STORAGE_KEY = 'leovoltaje_quotation_draft';
 
 export default function HomePage() {
   const [quotation, setQuotation] = useState<QuotationData>(INITIAL_QUOTATION);
@@ -27,9 +29,21 @@ export default function HomePage() {
   useEffect(() => {
     const saved = getStoredConsecutive();
     if (!saved) {
-      // Si el dispositivo (celular o navegador) no tiene consecutivo guardado, se pregunta únicamente el número
       setIsInitialConsecutiveModalOpen(true);
-    } else {
+    }
+
+    try {
+      const draftJson = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (draftJson) {
+        const parsed = JSON.parse(draftJson);
+        if (parsed && parsed.quotationNumber) {
+          setQuotation(parsed);
+          return;
+        }
+      }
+    } catch {}
+
+    if (saved) {
       setQuotation((prev) => ({
         ...prev,
         quotationNumber: formatConsecutive(saved),
@@ -38,13 +52,29 @@ export default function HomePage() {
     }
   }, []);
 
+  // Guardado automático del borrador para que no se pierdan datos en recargas móviles
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(quotation));
+      } catch {}
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [quotation]);
+
   const handleSaveInitialConsecutive = (num: number) => {
     setStoredConsecutive(num);
-    setQuotation((prev) => ({
-      ...prev,
-      quotationNumber: formatConsecutive(num),
-      date: getTodayDateString(),
-    }));
+    setQuotation((prev) => {
+      const updated = {
+        ...prev,
+        quotationNumber: formatConsecutive(num),
+        date: getTodayDateString(),
+      };
+      try {
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
     setIsInitialConsecutiveModalOpen(false);
   };
 
@@ -53,10 +83,18 @@ export default function HomePage() {
     const nextNum = currentNum + 1;
     if (confirm(`¿Crear una nueva cotización? Se asignará el consecutivo ${formatConsecutive(nextNum)}.`)) {
       setStoredConsecutive(nextNum);
-      setQuotation(createNewQuotation(formatConsecutive(nextNum)));
+      const freshQuotation = createNewQuotation(formatConsecutive(nextNum));
+      setQuotation(freshQuotation);
+      try {
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(freshQuotation));
+      } catch {}
       setActiveTab('form');
     }
   };
+
+  const handleLogoutReady = useCallback((fn: () => void) => {
+    setLogoutTrigger(() => fn);
+  }, []);
 
   const handleLogout = () => {
     if (confirm('¿Deseas cerrar la sesión administrativa?')) {
@@ -67,7 +105,7 @@ export default function HomePage() {
   };
 
   return (
-    <AuthGuard onLogoutReady={(fn) => setLogoutTrigger(() => fn)}>
+    <AuthGuard onLogoutReady={handleLogoutReady}>
       <div className="app-shell">
         {/* Barra Superior Corporativa */}
         <header className="main-nav no-print">
@@ -84,7 +122,7 @@ export default function HomePage() {
                   if (fb) fb.style.display = 'block';
                 }}
               />
-              <Zap size={20} color="#E5A93C" className="nav-logo-fallback" style={{ display: 'none' }} />
+              <Zap size={20} color="#23266c" className="nav-logo-fallback" style={{ display: 'none' }} />
             </div>
             <div className="nav-brand-titles">
               <span className="nav-brand-title">Grupo Leovoltaje</span>
@@ -116,11 +154,11 @@ export default function HomePage() {
             <button
               type="button"
               onClick={handleReset}
-              className="btn-icon-nav"
-              title="Nueva Cotización"
+              className="btn-icon-nav btn-icon-new"
+              title="Nueva Cotización (+)"
               aria-label="Nueva Cotización"
             >
-              <RotateCcw size={18} />
+              <Plus size={20} />
             </button>
 
             <button
@@ -156,7 +194,7 @@ export default function HomePage() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             />
-            <PdfPreviewViewer data={quotation} />
+            <PdfPreviewViewer data={quotation} isActive={activeTab === 'preview'} />
           </div>
         </main>
 

@@ -25,7 +25,7 @@ Para colocar la imagen de la firma y el logo oficial de la empresa:
 ## 🚀 Características Principales
 
 1. **Identidad Visual Corporativa:**
-   - Paleta de color oficial: Azul institucional (`#232357`), acento azul (`#22266c`), acento eléctrico (`#E5A93C`) y neutros técnicos (`#F8F9FA`, `#FFFFFF`).
+   - Paleta de color oficial: Azul institucional (`#232357`), azul acento de marca (`#23266c`), neutro secundario (`#d5d5eb`) y neutros técnicos (`#FFFFFF`, `#F8F9FA`, `#1A1A1A`, `#333333`).
    - Tipografía oficial: Familia `Bree Serif` para encabezados, títulos y total económico; familia `Inter` para lectura técnica y cuerpo.
 
 2. **Modelo Comercial de Precio Global (Llave en Mano):**

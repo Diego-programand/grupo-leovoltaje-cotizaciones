@@ -67,21 +67,21 @@ function AutoResizeTextarea({
   const adjustHeight = useCallback(() => {
     const el = textareaRef.current;
     if (el) {
-      el.style.height = '0px';
-      // Extra 8px buffer so line-height and letter descenders are never clipped
+      el.style.height = 'auto';
       const scrollH = el.scrollHeight;
-      el.style.height = `${Math.max(54, scrollH + 8)}px`;
+      el.style.height = `${Math.max(54, scrollH + 4)}px`;
     }
   }, []);
 
   useEffect(() => {
     adjustHeight();
-    if (typeof document !== 'undefined' && 'fonts' in document) {
-      document.fonts.ready.then(adjustHeight);
-    }
-    window.addEventListener('resize', adjustHeight);
-    return () => window.removeEventListener('resize', adjustHeight);
   }, [value, adjustHeight]);
+
+  useEffect(() => {
+    const handleResize = () => adjustHeight();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [adjustHeight]);
 
   return (
     <textarea
@@ -93,7 +93,6 @@ function AutoResizeTextarea({
       style={{ overflow: 'hidden', resize: 'none' }}
       onChange={(e) => {
         onChange(e.target.value);
-        adjustHeight();
       }}
     />
   );
@@ -187,6 +186,7 @@ export default function QuotationForm({ data, onChange, onGoToPreview }: Props) 
             <label className="input-label">Teléfono de Contacto</label>
             <input
               type="tel"
+              inputMode="tel"
               className="input-control"
               placeholder="Ej: 310 123 4567"
               value={data.clientPhone}
@@ -211,7 +211,7 @@ export default function QuotationForm({ data, onChange, onGoToPreview }: Props) 
       <section className="form-card">
         <div className="card-header">
           <Zap size={18} className="card-icon" />
-          <h2>Partidas y Labores Técnicas ({data.items.length})</h2>
+          <h2>Productos y servicios ({data.items.length})</h2>
         </div>
 
         {/* Lista de Partidas */}
@@ -250,6 +250,41 @@ export default function QuotationForm({ data, onChange, onGoToPreview }: Props) 
           <Plus size={18} />
           <span>Agregar otro labor / producto</span>
         </button>
+
+        {/* Sugerencias rápidas para agregar en móvil con 1 toque */}
+        <div className="quick-presets-wrap">
+          <span className="quick-presets-label">Sugeridos rápidos:</span>
+          <div className="quick-presets-scroll">
+            <button
+              type="button"
+              className="chip-preset"
+              onClick={() => handleAddItem('Adecuación, suministro y tendido de acometida eléctrica principal trifásica bajo norma técnica NTC 2050.')}
+            >
+              + Acometida NTC 2050
+            </button>
+            <button
+              type="button"
+              className="chip-preset"
+              onClick={() => handleAddItem('Instalación y conexionado de tablero general de distribución con protecciones termomagnéticas.')}
+            >
+              + Tablero distribución
+            </button>
+            <button
+              type="button"
+              className="chip-preset"
+              onClick={() => handleAddItem('Mantenimiento preventivo y correctivo de subestación eléctrica y transformador de potencia.')}
+            >
+              + Subestación eléctrica
+            </button>
+            <button
+              type="button"
+              className="chip-preset"
+              onClick={() => handleAddItem('Inspección técnica, pruebas de resistencia de puesta a tierra y gestión de dictamen RETIE.')}
+            >
+              + Dictamen RETIE
+            </button>
+          </div>
+        </div>
       </section>
 
       {/* 5. Cierre Económico (Modelo Llave en Mano / Precio Global) */}
@@ -260,11 +295,11 @@ export default function QuotationForm({ data, onChange, onGoToPreview }: Props) 
         </div>
 
         <div className="input-group">
-
           <div className="currency-input-wrap">
             <span className="currency-symbol">$</span>
             <input
               type="number"
+              inputMode="numeric"
               className="input-control currency-input"
               placeholder="0"
               value={data.totalPrice || ''}

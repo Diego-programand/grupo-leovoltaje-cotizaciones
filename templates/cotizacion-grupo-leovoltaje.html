@@ -19,20 +19,22 @@
     :root {
       --color-primary: #232357;
       /* Azul institucional Grupo Leovoltaje */
-      --color-primary-dark: #181840;
+      --color-primary-accent: #23266c;
+      /* Azul institucional acento / encabezados */
+      --color-primary-dark: #16183a;
       /* Tono profundo de soporte */
-      --color-accent: #22266c;
-      /* Acento dorado/eléctrico sutil */
+      --color-secondary: #d5d5eb;
+      /* Tono secundario suave */
       --color-text-main: #1A1A1A;
       /* Texto de alto contraste */
-      --color-text-secondary: #4A4A4A;
+      --color-text-secondary: #333333;
       /* Texto secundario y etiquetas */
-      --color-text-muted: #71717A;
+      --color-text-muted: #555555;
       /* Metadatos y notas */
       --color-bg-card: #F8F9FA;
       /* Fondo sutil para tarjetas */
-      --color-border: #e2e8f0;
-      /* Bordes neutros técnicos */
+      --color-border: #d5d5eb;
+      /* Bordes secundarios técnicos */
       --color-white: #FFFFFF;
 
       --font-title: 'Bree Serif', Georgia, serif;
@@ -108,7 +110,50 @@
       left: 0;
       right: 0;
       height: 5mm;
-      background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary) 85%, var(--color-accent) 85%, var(--color-accent) 100%);
+      background: linear-gradient(90deg, #232357 0%, #232357 75%, #23266c 75%, #23266c 100%);
+    }
+
+    /* ==========================================================================
+       MARCA DE AGUA INSTITUCIONAL (WATERMARK / SELLO DE AGUA)
+       ========================================================================== */
+    .doc-watermark {
+      position: absolute;
+      bottom: 25mm;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 190mm;
+      height: 190mm;
+      max-width: 190mm;
+      max-height: 190mm;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.06;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .doc-watermark-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: grayscale(100%);
+      pointer-events: none;
+      display: block;
+    }
+
+    .document-flow,
+    .document-footer-block,
+    .table-container,
+    .total-banner,
+    .closing-note,
+    .closing-section,
+    .signature-container,
+    .footer-section {
+      position: relative;
+      z-index: 1;
     }
 
     /* ==========================================================================
@@ -473,6 +518,11 @@
   <!-- Contenedor exacto A4 (210mm x 297mm) -->
   <main class="a4-sheet" id="quotation-document">
 
+    <!-- MARCA DE AGUA INSTITUCIONAL (WATERMARK / SELLO DE AGUA) -->
+    <div class="doc-watermark" aria-hidden="true">
+      <img src="../public/logo.png" alt="" class="doc-watermark-img" />
+    </div>
+
     <!-- CONTENIDO SUPERIOR Y CUERPO -->
     <div class="document-flow">
 
@@ -488,7 +538,7 @@
               onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
             <svg class="brand-logo-fallback" viewBox="0 0 40 40" style="display: none;" aria-hidden="true">
               <!-- Isotipo: Cabeza de León vectorizada con rayo eléctrico -->
-              <path d="M20 4L23 14H29L21 24H26L15 36L18 22H12L20 4Z" fill="#E5A93C" />
+              <path d="M20 4L23 14H29L21 24H26L15 36L18 22H12L20 4Z" fill="#23266c" />
               <path
                 d="M7 12C9 8 14 5 20 5C26 5 31 8 33 12C35 16 35 22 31 28C28 32 24 35 20 35C16 35 12 32 9 28C5 22 5 16 7 12Z"
                 stroke="#FFFFFF" stroke-width="1.8" fill="none" opacity="0.85" />

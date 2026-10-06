@@ -35,6 +35,16 @@ export default function QuotationDocument({ data }: Props) {
 
   return (
     <div id="quotation-document" className="a4-sheet doc-canvas">
+      {/* 0. MARCA DE AGUA INSTITUCIONAL (WATERMARK / SELLO DE AGUA) */}
+      <div className="doc-watermark" aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.png"
+          alt=""
+          className="doc-watermark-img"
+        />
+      </div>
+
       {/* Contenido superior y cuerpo fluido */}
       <div className="document-flow">
         {/* 1. ENCABEZADO / HEADER */}
@@ -55,7 +65,7 @@ export default function QuotationDocument({ data }: Props) {
                 }}
               />
               <svg className="brand-logo-fallback" viewBox="0 0 40 40" style={{ display: 'none' }} aria-hidden="true">
-                <path d="M20 4L23 14H29L21 24H26L15 36L18 22H12L20 4Z" fill="#E5A93C" />
+                <path d="M20 4L23 14H29L21 24H26L15 36L18 22H12L20 4Z" fill="#23266c" />
                 <path
                   d="M7 12C9 8 14 5 20 5C26 5 31 8 33 12C35 16 35 22 31 28C28 32 24 35 20 35C16 35 12 32 9 28C5 22 5 16 7 12Z"
                   stroke="#FFFFFF"

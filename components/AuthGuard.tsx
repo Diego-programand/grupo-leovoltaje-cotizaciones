@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Lock, Eye, EyeOff, ShieldCheck, ArrowRight, Loader2, Zap } from 'lucide-react';
 
 interface AuthGuardProps {
@@ -38,18 +38,23 @@ export default function AuthGuard({ children, onLogoutReady }: AuthGuardProps) {
   const handleLogout = useCallback(async () => {
     try {
       await fetch('/api/auth', { method: 'DELETE' });
-    } catch {}
+    } catch { }
     setIsAuthenticated(false);
     setPin('');
     setErrorMessage('');
     setIsLocked(false);
   }, []);
 
+  const onLogoutReadyRef = useRef(onLogoutReady);
   useEffect(() => {
-    if (onLogoutReady) {
-      onLogoutReady(handleLogout);
+    onLogoutReadyRef.current = onLogoutReady;
+  });
+
+  useEffect(() => {
+    if (onLogoutReadyRef.current) {
+      onLogoutReadyRef.current(handleLogout);
     }
-  }, [onLogoutReady, handleLogout]);
+  }, [handleLogout]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,22 +127,19 @@ export default function AuthGuard({ children, onLogoutReady }: AuthGuardProps) {
                 if (fb) fb.style.display = 'block';
               }}
             />
-            <Zap size={28} color="#E5A93C" className="auth-logo-fallback" style={{ display: 'none' }} />
+            <Zap size={28} color="#23266c" className="auth-logo-fallback" style={{ display: 'none' }} />
           </div>
           <h1>Grupo Leovoltaje</h1>
-          <p className="auth-brand-sub">Servicios eléctricos • grupoleovoltaje.com</p>
-          <span className="auth-portal-badge">Panel Administrativo de Cotizaciones</span>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="auth-input-group">
-            <label className="auth-label">Clave de Acceso Administrativo</label>
             <div className="auth-input-wrapper">
               <Lock size={16} className="auth-input-icon" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 className="auth-input"
-                placeholder="Ingresa el PIN de seguridad"
+                placeholder="Ingresa el PIN"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
                 disabled={isLoading || isLocked}
@@ -178,17 +180,13 @@ export default function AuthGuard({ children, onLogoutReady }: AuthGuardProps) {
               </>
             ) : (
               <>
-                <span>Ingresar al Cotizador</span>
+                <span>Ingresar</span>
                 <ArrowRight size={16} />
               </>
             )}
           </button>
         </form>
 
-        <div className="auth-security-footer">
-          <ShieldCheck size={14} />
-          <span>Acceso restringido • Grupo Leovoltaje</span>
-        </div>
       </div>
     </div>
   );

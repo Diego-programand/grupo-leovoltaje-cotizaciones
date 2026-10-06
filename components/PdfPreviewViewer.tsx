@@ -7,53 +7,67 @@ import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 
 interface Props {
   data: QuotationData;
+  isActive?: boolean;
 }
 
 const A4_WIDTH_PX = 794;
 const A4_HEIGHT_PX = 1123;
 
-export default function PdfPreviewViewer({ data }: Props) {
+export default function PdfPreviewViewer({ data, isActive }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState<number>(1);
   const [isAutoFit, setIsAutoFit] = useState<boolean>(true);
 
-  // Calcular el factor de escala óptimo según el ancho disponible
+  // Calcular el factor de escala óptimo según el ancho disponible real
   const calculateFitScale = useCallback(() => {
-    if (!containerRef.current) return 1;
-    // Margen lateral de seguridad (32px total)
-    const availableWidth = containerRef.current.clientWidth - 32;
+    if (!containerRef.current) {
+      if (typeof window !== 'undefined') {
+        const screenW = window.innerWidth;
+        const avail = Math.max(280, screenW - (screenW < 768 ? 28 : 64));
+        return Math.min(1.05, Math.max(0.25, Number((avail / A4_WIDTH_PX).toFixed(3))));
+      }
+      return 1;
+    }
+    const rect = containerRef.current.getBoundingClientRect();
+    const width = rect.width > 0 ? rect.width : (typeof window !== 'undefined' ? window.innerWidth : 800);
+    const isMobile = (typeof window !== 'undefined' ? window.innerWidth : 800) < 640;
+    const safetyMargin = isMobile ? 8 : 16;
+    const availableWidth = width - safetyMargin;
     if (availableWidth <= 0) return 1;
 
-    // Si la pantalla es pequeña (móvil/tablet), ajustar al ancho exacto disponible
-    // Si la pantalla es muy ancha, limitar a máximo 1.1x para no desbordar
     const scale = availableWidth / A4_WIDTH_PX;
-    return Math.min(1.05, Math.max(0.3, Number(scale.toFixed(3))));
+    return Math.min(1.05, Math.max(0.25, Number(scale.toFixed(3))));
   }, []);
 
-  // Ajustar escala al montar y al redimensionar la ventana
+  // Observador de cambio de tamaño (ResizeObserver)
+  // Se activa automáticamente cuando se hace visible la pestaña en móvil o se rota la pantalla
   useEffect(() => {
-    const handleResize = () => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const updateScale = () => {
       if (isAutoFit) {
         const fitScale = calculateFitScale();
-        setZoom(fitScale);
+        if (fitScale > 0) {
+          setZoom(fitScale);
+        }
       }
     };
 
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isAutoFit, calculateFitScale]);
+    updateScale();
 
-  // Al cambiar datos (o cambiar pestaña), reevaluar auto-fit
-  useEffect(() => {
-    if (isAutoFit) {
-      // Pequeño retardo para asegurar que el DOM calculó clientWidth
-      const timer = setTimeout(() => {
-        setZoom(calculateFitScale());
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [isAutoFit, calculateFitScale]);
+    const resizeObserver = new ResizeObserver(() => {
+      updateScale();
+    });
+
+    resizeObserver.observe(el);
+    window.addEventListener('resize', updateScale);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateScale);
+    };
+  }, [isAutoFit, calculateFitScale, isActive]);
 
   const handleToggleAutoFit = () => {
     setIsAutoFit(true);
@@ -72,7 +86,7 @@ export default function PdfPreviewViewer({ data }: Props) {
 
   const handleZoomOut = () => {
     setIsAutoFit(false);
-    setZoom((prev) => Math.max(0.3, Number((prev - 0.1).toFixed(2))));
+    setZoom((prev) => Math.max(0.25, Number((prev - 0.1).toFixed(2))));
   };
 
   return (
