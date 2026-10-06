@@ -62,9 +62,9 @@ body {
   font-family: var(--font-body);
   color: var(--color-text-body);
   min-height: 100vh;
+  min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior-y: none;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -271,12 +271,23 @@ body {
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
+  min-height: 0;
 }
 
 @media (min-width: 1024px) {
+  .app-shell {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
   .main-split-area {
-    grid-template-columns: 500px 1fr;
+    grid-template-columns: 520px 1fr;
     height: calc(100vh - 64px);
+    height: calc(100dvh - 64px);
+    max-height: calc(100vh - 64px);
+    max-height: calc(100dvh - 64px);
+    min-height: 0;
     overflow: hidden;
   }
 
@@ -287,9 +298,8 @@ body {
 
 .col-form {
   padding: 12px 10px;
-  overflow-y: auto;
+  overflow-y: visible;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
 }
 
 @media (min-width: 480px) {
@@ -304,12 +314,20 @@ body {
   }
 }
 
+@media (min-width: 1024px) {
+  .col-form {
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
 .col-preview {
   padding: 10px 8px;
   padding-bottom: max(32px, env(safe-area-inset-bottom));
-  overflow-y: auto;
+  overflow-y: visible;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
   background: #0B0D18;
   display: flex;
   flex-direction: column;
@@ -327,6 +345,15 @@ body {
 @media (min-width: 768px) {
   .col-preview {
     padding: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .col-preview {
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    overflow-y: auto;
   }
 }
 
