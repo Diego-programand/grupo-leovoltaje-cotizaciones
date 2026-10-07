@@ -15,37 +15,52 @@ const A4_HEIGHT_PX = 1123;
 
 export default function PdfPreviewViewer({ data, isActive }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const docWrapRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState<number>(1);
   const [isAutoFit, setIsAutoFit] = useState<boolean>(true);
+  const [docHeight, setDocHeight] = useState<number>(A4_HEIGHT_PX);
+
+  // Medir la altura real no escalada del documento para evitar vacíos en móvil
+  const measureDocHeight = useCallback(() => {
+    if (docWrapRef.current) {
+      const measured = docWrapRef.current.offsetHeight;
+      if (measured > 100) {
+        setDocHeight(measured);
+      }
+    }
+  }, []);
 
   // Calcular el factor de escala óptimo según el ancho disponible real
   const calculateFitScale = useCallback(() => {
     if (!containerRef.current) {
       if (typeof window !== 'undefined') {
         const screenW = window.innerWidth;
-        const avail = Math.max(280, screenW - (screenW < 768 ? 28 : 64));
-        return Math.min(1.05, Math.max(0.25, Number((avail / A4_WIDTH_PX).toFixed(3))));
+        const padding = screenW < 480 ? 16 : (screenW < 768 ? 32 : 48);
+        const avail = Math.max(260, screenW - padding);
+        return Math.min(1.02, Math.max(0.28, Number((avail / A4_WIDTH_PX).toFixed(3))));
       }
       return 1;
     }
     const rect = containerRef.current.getBoundingClientRect();
     const width = rect.width > 0 ? rect.width : (typeof window !== 'undefined' ? window.innerWidth : 800);
     const isMobile = (typeof window !== 'undefined' ? window.innerWidth : 800) < 640;
-    const safetyMargin = isMobile ? 8 : 16;
+    // Margen de seguridad para no provocar barra de scroll horizontal involuntaria
+    const safetyMargin = isMobile ? 12 : 20;
     const availableWidth = width - safetyMargin;
     if (availableWidth <= 0) return 1;
 
     const scale = availableWidth / A4_WIDTH_PX;
-    return Math.min(1.05, Math.max(0.25, Number(scale.toFixed(3))));
+    return Math.min(1.02, Math.max(0.28, Number(scale.toFixed(3))));
   }, []);
 
-  // Observador de cambio de tamaño (ResizeObserver)
-  // Se activa automáticamente cuando se hace visible la pestaña en móvil o se rota la pantalla
+  // Actualizar escala y altura cuando cambian los datos o la visibilidad de la pestaña
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
+    measureDocHeight();
+  }, [data, measureDocHeight, isActive]);
 
-    const updateScale = () => {
+  useEffect(() => {
+    const update = () => {
+      measureDocHeight();
       if (isAutoFit) {
         const fitScale = calculateFitScale();
         if (fitScale > 0) {
@@ -54,24 +69,37 @@ export default function PdfPreviewViewer({ data, isActive }: Props) {
       }
     };
 
-    updateScale();
+    update();
 
-    const resizeObserver = new ResizeObserver(() => {
-      updateScale();
+    // Re-chequeo con frame diferido por si la pestaña móvil recién conmutó su display
+    const raf = requestAnimationFrame(() => {
+      update();
     });
 
-    resizeObserver.observe(el);
-    window.addEventListener('resize', updateScale);
+    const el = containerRef.current;
+    let resizeObserver: ResizeObserver | null = null;
+    if (el) {
+      resizeObserver = new ResizeObserver(() => {
+        update();
+      });
+      resizeObserver.observe(el);
+    }
+
+    window.addEventListener('resize', update);
+    window.addEventListener('orientationchange', update);
 
     return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener('resize', updateScale);
+      cancelAnimationFrame(raf);
+      if (resizeObserver) resizeObserver.disconnect();
+      window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', update);
     };
-  }, [isAutoFit, calculateFitScale, isActive]);
+  }, [isAutoFit, calculateFitScale, measureDocHeight, isActive]);
 
   const handleToggleAutoFit = () => {
     setIsAutoFit(true);
-    setZoom(calculateFitScale());
+    const fit = calculateFitScale();
+    setZoom(fit);
   };
 
   const handleSet100 = () => {
@@ -86,12 +114,15 @@ export default function PdfPreviewViewer({ data, isActive }: Props) {
 
   const handleZoomOut = () => {
     setIsAutoFit(false);
-    setZoom((prev) => Math.max(0.25, Number((prev - 0.1).toFixed(2))));
+    setZoom((prev) => Math.max(0.28, Number((prev - 0.1).toFixed(2))));
   };
+
+  const scaledWidth = Math.round(A4_WIDTH_PX * zoom);
+  const scaledHeight = Math.round(docHeight * zoom);
 
   return (
     <div className="pdf-viewer-root" ref={containerRef}>
-      {/* Barra de herramientas flotante / superior del visor */}
+      {/* Barra de herramientas superior del visor con soporte compacto móvil */}
       <div className="pdf-viewer-toolbar no-print">
         <div className="toolbar-group">
           <button
@@ -101,12 +132,12 @@ export default function PdfPreviewViewer({ data, isActive }: Props) {
             title="Ajustar al ancho de la pantalla"
           >
             <Maximize2 size={15} />
-            <span>Ajustar ancho</span>
+            <span className="toolbar-btn-text">Ajustar</span>
           </button>
 
           <button
             type="button"
-            className={`toolbar-btn ${!isAutoFit && zoom === 1 ? 'toolbar-btn-active' : ''}`}
+            className={`toolbar-btn ${!isAutoFit && Math.abs(zoom - 1) < 0.02 ? 'toolbar-btn-active' : ''}`}
             onClick={handleSet100}
             title="Ver en escala real 100%"
           >
@@ -143,16 +174,18 @@ export default function PdfPreviewViewer({ data, isActive }: Props) {
         </div>
       </div>
 
-      {/* Viewport del documento con escalado proporcional determinista */}
+      {/* Viewport del documento con escalado proporcional y altura exacta calculada */}
       <div className="pdf-viewer-viewport">
         <div
           className="pdf-page-scaler"
           style={{
-            width: `${Math.round(A4_WIDTH_PX * zoom)}px`,
-            minHeight: `${Math.round(A4_HEIGHT_PX * zoom)}px`,
+            width: `${scaledWidth}px`,
+            height: `${scaledHeight}px`,
+            minHeight: `${scaledHeight}px`,
           }}
         >
           <div
+            ref={docWrapRef}
             className="pdf-page-transform"
             style={{
               transform: `scale(${zoom})`,

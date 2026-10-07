@@ -9,7 +9,7 @@ export const OFFICIAL_COMPANY_INFO = {
   adminName: process.env.NEXT_PUBLIC_ADMIN_NAME || 'Administrador General',
   adminRole: process.env.NEXT_PUBLIC_ADMIN_ROLE || 'Administrador',
   logoUrl: process.env.NEXT_PUBLIC_LOGO_URL || '/favicon.svg',
-  signatureUrl: process.env.NEXT_PUBLIC_SIGNATURE_URL || '/firma-admin.svg',
+  signatureUrl: process.env.NEXT_PUBLIC_SIGNATURE_URL || '/firma_admin.png',
 };
 
 export function getTodayDateString(): string {
@@ -57,7 +57,7 @@ export function setStoredConsecutive(num: number): void {
   try {
     const valid = Math.max(1, Math.floor(num));
     localStorage.setItem(STORAGE_KEY_CONSECUTIVE, String(valid));
-  } catch {}
+  } catch { }
 }
 
 export function createEmptyItem(text: string = ''): QuotationItem {

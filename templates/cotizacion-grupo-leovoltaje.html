@@ -224,39 +224,67 @@
       display: flex;
       flex-direction: column;
       align-items: flex-end;
+      gap: 2mm;
     }
 
     .quotation-main-title {
       font-family: var(--font-title);
-      font-size: 22pt;
+      font-size: 19pt;
+      font-weight: 800;
       color: var(--color-primary);
       line-height: 1;
-      letter-spacing: 0.8px;
-      margin-bottom: 5px;
+      letter-spacing: 1.5px;
+      margin: 0;
+      text-transform: uppercase;
     }
 
     .quotation-meta-grid {
-      display: grid;
-      grid-template-columns: auto auto;
-      gap: 3px 10px;
-      text-align: right;
-      font-size: 8pt;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5mm;
       background: var(--color-bg-card);
-      padding: 5px 10px;
-      border-radius: 4px;
       border: 1px solid var(--color-border);
+      border-right: 3px solid var(--color-primary);
+      padding: 1.8mm 3.2mm;
+      border-radius: 4px;
+      min-width: 54mm;
+    }
+
+    .quotation-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 3mm;
     }
 
     .meta-label {
       color: var(--color-text-muted);
-      font-weight: 500;
+      font-weight: 700;
       text-transform: uppercase;
-      font-size: 7pt;
+      font-size: 6.5pt;
+      letter-spacing: 0.4px;
     }
 
     .meta-val {
       color: var(--color-primary);
       font-weight: 700;
+    }
+
+    .meta-val-badge {
+      color: var(--color-primary);
+      font-weight: 800;
+      font-size: 8.5pt;
+      background: #ffffff;
+      border: 1px solid var(--color-border);
+      padding: 0.5mm 2.2mm;
+      border-radius: 3px;
+      letter-spacing: 0.3px;
+    }
+
+    .meta-val-date {
+      color: var(--color-primary);
+      font-weight: 600;
+      font-size: 7.5pt;
     }
 
     /* ==========================================================================
@@ -441,24 +469,26 @@
     }
 
     .signature-container {
-      width: 230px;
+      width: 220px;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
     }
 
     .signature-image-box {
-      height: 42px;
-      max-width: 170px;
+      height: 75px;
+      width: 100%;
       display: flex;
       align-items: flex-end;
-      margin-bottom: 2px;
+      margin-bottom: -4px;
     }
 
     .signature-img {
       max-height: 100%;
+      width: auto;
       max-width: 100%;
       object-fit: contain;
+      object-position: left bottom;
     }
 
     .signature-line {
@@ -553,12 +583,16 @@
         <div class="quotation-badge-card">
           <h2 class="quotation-main-title">COTIZACIÓN</h2>
           <div class="quotation-meta-grid">
-            <span class="meta-label">No. Cotización:</span>
-            <span class="meta-val" id="field-quotation-number"
-              data-field="consecutivo_cotizacion">[CONSECUTIVO_COTIZACION]</span>
+            <div class="quotation-meta-row">
+              <span class="meta-label">No. Cotización:</span>
+              <span class="meta-val meta-val-badge" id="field-quotation-number"
+                data-field="consecutivo_cotizacion">[CONSECUTIVO_COTIZACION]</span>
+            </div>
 
-            <span class="meta-label">Fecha de Emisión:</span>
-            <span class="meta-val" id="field-quotation-date" data-field="fecha_cotizacion">[FECHA_COTIZACION]</span>
+            <div class="quotation-meta-row">
+              <span class="meta-label">Fecha de Emisión:</span>
+              <span class="meta-val meta-val-date" id="field-quotation-date" data-field="fecha_cotizacion">[FECHA_COTIZACION]</span>
+            </div>
           </div>
         </div>
       </header>
@@ -613,8 +647,7 @@
       <section class="intro-section" data-field="introduccion_container">
         <p class="intro-paragraph">
           Agradecemos su interés en <strong>Grupo Leovoltaje</strong>. Ponemos a su disposición la presente propuesta
-          técnica y económica conforme al consecutivo <strong>[CONSECUTIVO_COTIZACION]</strong> emitido el
-          <strong>[FECHA_COTIZACION]</strong>.
+          técnica y económica detallada para su respectiva revisión y aprobación.
         </p>
       </section>
 

@@ -15,10 +15,10 @@ Para colocar la imagen de la firma y el logo oficial de la empresa:
 * **Nota técnica:** En `components/QuotationDocument.tsx` el logo se carga desde `data.logoUrl || '/favicon.svg'`. Si colocas tu archivo `logo.png` en `public/logo.png`, puedes actualizar la ruta en `data/defaults.ts` (`OFFICIAL_COMPANY_INFO.logoUrl = '/logo.png'`).
 
 ### 2. Firma Digital del Administrador
-* **Ruta de archivo:** `public/firma-admin.png` (o `public/firma-admin.svg`)
+* **Ruta de archivo:** `public/firma_admin.png` (o `public/firma_admin.png`)
 * **Formatos soportados:** PNG transparente con la firma gráfica digitalizada o SVG.
 * **Dimensiones recomendadas:** Ancho 300px a 500px, alto 80px a 140px, fondo estrictamente transparente.
-* **Nota técnica:** Actualmente el proyecto incluye un placeholder vectorial en `public/firma-admin.svg`. Al reemplazarlo por tu archivo gráfico oficial `public/firma-admin.png`, actualiza la ruta en `data/defaults.ts` (`OFFICIAL_COMPANY_INFO.signatureUrl = '/firma-admin.png'`).
+* **Nota técnica:** Actualmente el proyecto incluye un placeholder vectorial en `public/firma_admin.png`. Al reemplazarlo por tu archivo gráfico oficial `public/firma_admin.png`, actualiza la ruta en `data/defaults.ts` (`OFFICIAL_COMPANY_INFO.signatureUrl = '/firma_admin.png'`).
 
 ---
 

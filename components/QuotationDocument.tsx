@@ -78,22 +78,25 @@ export default function QuotationDocument({ data }: Props) {
             <div className="brand-text">
               <h1 className="brand-name">Grupo</h1>
               <h1 className="brand-name">Leovoltaje</h1>
-              <span className="brand-web">grupoleovoltaje.com</span>
             </div>
           </div>
 
           <div className="quotation-badge-card">
             <h2 className="quotation-main-title">COTIZACIÓN</h2>
             <div className="quotation-meta-grid">
-              <span className="meta-label">No. Cotización:</span>
-              <span className="meta-val" id="field-quotation-number" data-field="consecutivo_cotizacion">
-                {data.quotationNumber}
-              </span>
+              <div className="quotation-meta-row">
+                <span className="meta-label">No. Cotización:</span>
+                <span className="meta-val meta-val-badge" id="field-quotation-number" data-field="consecutivo_cotizacion">
+                  {data.quotationNumber}
+                </span>
+              </div>
 
-              <span className="meta-label">Fecha de Emisión:</span>
-              <span className="meta-val" id="field-quotation-date" data-field="fecha_cotizacion">
-                {formalDate || data.date}
-              </span>
+              <div className="quotation-meta-row">
+                <span className="meta-label">Fecha de Emisión:</span>
+                <span className="meta-val meta-val-date" id="field-quotation-date" data-field="fecha_cotizacion">
+                  {formalDate || data.date}
+                </span>
+              </div>
             </div>
           </div>
         </header>
@@ -152,7 +155,7 @@ export default function QuotationDocument({ data }: Props) {
         {/* 3. TEXTO INTRODUCTORIO FORMAL (CONCISO) */}
         <section className="intro-section" data-field="introduccion_container">
           <p className="intro-paragraph">
-            Agradecemos su interés en <strong>Grupo Leovoltaje</strong>. Ponemos a su disposición la presente propuesta técnica y económica conforme al consecutivo <strong>{data.quotationNumber}</strong> emitido el <strong>{formalDate || data.date}</strong>.
+            Agradecemos su interés en <strong>Grupo Leovoltaje</strong>. Ponemos a su disposición la presente propuesta técnica y económica detallada para su respectiva revisión y aprobación.
           </p>
         </section>
 
@@ -170,7 +173,6 @@ export default function QuotationDocument({ data }: Props) {
                 <tr key={item.id || idx} className="item-row" data-field="item_row">
                   <td className="td-item-desc" data-field="item_descripcion">
                     <div className="item-desc-cell">
-                      <span className="item-bullet">›</span>
                       <div className="item-desc-text">{item.description}</div>
                     </div>
                   </td>
@@ -211,12 +213,17 @@ export default function QuotationDocument({ data }: Props) {
               {/* Firma gráfica digitalizada del administrador */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={data.signatureUrl || '/firma-admin.svg'}
+                src={data.signatureUrl || '/firma_admin.png'}
                 alt="Firma Administrador"
                 className="signature-img"
                 data-field="firma_administrador"
                 onError={(e) => {
-                  e.currentTarget.style.visibility = 'hidden';
+                  const target = e.currentTarget;
+                  if (!target.src.endsWith('/firma_admin.png')) {
+                    target.src = '/firma_admin.png';
+                  } else {
+                    target.style.visibility = 'hidden';
+                  }
                 }}
               />
             </div>

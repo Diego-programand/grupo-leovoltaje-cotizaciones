@@ -7,6 +7,7 @@ import PrintControls from '@/components/PrintControls';
 import AuthGuard from '@/components/AuthGuard';
 import ConsecutiveModal from '@/components/ConsecutiveModal';
 import {
+  OFFICIAL_COMPANY_INFO,
   INITIAL_QUOTATION,
   createNewQuotation,
   formatConsecutive,
@@ -37,6 +38,13 @@ export default function HomePage() {
       if (draftJson) {
         const parsed = JSON.parse(draftJson);
         if (parsed && parsed.quotationNumber) {
+          // Sincronizar activos institucionales si el borrador contenía una ruta obsoleta
+          if (!parsed.signatureUrl || parsed.signatureUrl.includes('firma-admin.svg')) {
+            parsed.signatureUrl = OFFICIAL_COMPANY_INFO.signatureUrl;
+          }
+          if (!parsed.logoUrl) {
+            parsed.logoUrl = OFFICIAL_COMPANY_INFO.logoUrl;
+          }
           setQuotation(parsed);
           return;
         }
